@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        img{width: 100px;}
+    </style>
+    <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+</head>
+<body>
+     <input type="file" id="imageList">   <!-- 1、文件域（=>可选择要上传的文件）-->
+    <button onclick='req_ajax()'>上传</button>
+     <img src="" />      <!--用于放置上传成功的图片   -->
+<script>
+/*实现功能： 文件上传 
+前端：
+    1、通过<input type='file'> 文件域  =>获取文件
+    2、将获取的文件信息转化为formdata数据格式   注意key值的前后端同一
+    3、通过(jquery)ajax进行上传 
+        文件上传数据不需要缓存
+        文件上传的数据类型 不需要jquery进行默认格式处理(contentype:false)
+*/
+var OL_Action_Root='http://localhost:3000';
+function req_ajax(){
+    console.log(1)
+    console.log($('#imageList'))  //输出文件信息
+
+    let file=$('#imageList')[0].files[0]    //在文件域中选中的图片
+    //2、将获取的文件(图片)file转化为formdata数据格式
+    var formData = new FormData()   //创建一个空的formdata对象
+    formData.append('hehe',file)      //(参数1：上传数据时的key值;与后端的key值必须统一)
+    //3、通过(jquery)ajax进行上传 
+    $.ajax({      
+        url: OL_Action_Root+'/admin/upload/img',  //url='http://localhost:3000/admin/upload/img'
+        type: 'POST',
+        data: formData,  //图片上传为formdata数据格式
+        cache: false,   //图片上传不要缓存
+        contentType: false,   //文件上传的数据类型 不需要jquery进行默认格式(json、urlencode）处理 
+        processData: false,// 不需要jq进行默认格式处理
+        success: function(data){   //data为后端返回前端的数据(包括图片的相对路径)
+            //将上传成功的图片在页面显示
+            if(data.err==0){  //上传成功
+                alert(data)  //data：{code: 0, msg: "上传图片ok", data: "/public/img/1551620914897.jpeg"}
+                //获取图片在静态目录下的路径 需要后端返回的图片的相对路径(data.data)
+                console.log(data.data);
+                let imgurl= OL_Action_Root + data.data //图片的绝对地址 imgurl='http://localhost:3000/public/img/1551620914897.jpeg'
+                console.log(imgurl);
+                $('img').attr('src',imgurl)  //将图片路径放入<img src=''>的src中
+            }else{
+                alert(data.msg)
+            }
+            console.log(data)
+        }        
+    });
+}
+
+
+
+
+
+</script>
+</body>
+</html>
